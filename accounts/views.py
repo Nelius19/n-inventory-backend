@@ -43,15 +43,18 @@ def register_user(request):
 def login_user(request):
     serializer = LoginSerializer(data = request.data)   # Passed request data to Serializer
 
-    if not serializer.is_valid():                       # Check if data satisfy all validation constraints (serializer), return error if not
-        return Response(serializer.errors, status=401)
+    serializer.is_valid(raise_exception=True) # Check if data satisfy all validation constraints (serializer), return error if not
+    user = serializer.validated_data["user"]
+    login(request, user)
+
+    return Response(UserSerializer(user).data, status=200)
                             
-    user = serializer.validated_data["user"]            # Store returned user object (validated data)
-    if user:  
-        login(request, user)                            # Set sessionId, cookie
-        return Response(UserSerializer(user).data, status=200) # Converts User object to Json format using serializer
+    # user = serializer.validated_data["user"]            # Store returned user object (validated data)
+    # if user:  
+    #     login(request, user)                            # Set sessionId, cookie
+    #     return Response(UserSerializer(user).data, status=200) # Converts User object to Json format using serializer
     
-    return Response ({"error": "Wrong username or password"}, status=401)
+    # return Response ({"error": "Wrong username or password"}, status=401)
 
 
 # VERIFY AUTHENTICATION OF 'USER SESSION ID' FROM BROWSER COOKIE (authentication done in background)

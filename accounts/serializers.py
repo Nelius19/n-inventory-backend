@@ -65,6 +65,8 @@ class LoginSerializer(serializers.Serializer):
 
         # Authenticate validated data (check if user exist & password matches), returns user object
         user = authenticate(username=username, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid username or password")
         
         attrs['user'] = user    # Attach user to attrs so the view does NOT need to query user again
         
