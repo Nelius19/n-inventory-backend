@@ -76,6 +76,7 @@ def logout_user(request):
 # REQUEST PASSWORD RESET
 @api_view(['POST'])
 def password_reset_request(request):
+    print("PASSWORD RESET REQUEST")
     # Pass request data to Serializer
     serializer = PasswordResetRequestSerializer(data = request.data)
 
