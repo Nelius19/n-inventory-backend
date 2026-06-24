@@ -150,7 +150,7 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 
     EMAIL_USE_SSL = False
 
-    DEFAULT_FROM_EMAIL = f"N-Inventory <{EMAIL_HOST_USER}>"
+    DEFAULT_FROM_EMAIL = f"N-Inventory <cmulbahpl@gmail.com>"
 
     EMAIL_TIMEOUT = 10
 

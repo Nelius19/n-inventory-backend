@@ -139,25 +139,22 @@ def password_reset_request(request):
         )
 
         email.attach_alternative(html_content, "text/html")
+
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        logger.warning("PASSWORD RESET ENDPOINT HIT")
+        logger.warning(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+        logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
+        logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
+        logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+        
         try:
-            import logging
-
-            logger = logging.getLogger(__name__)
-
-            logger.warning("PASSWORD RESET ENDPOINT HIT")
-            logger.warning(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-            logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-            logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-            logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-
             result = email.send()
-
-            logger.warning(f"EMAIL SEND RESULT:", result)
-
-        except Exception as e:
-            import traceback
-            print("EMAIL ERROR:")
-            traceback.print_exc()
+            logger.warning(f"EMAIL SEND RESULT: {result}")
+        except Exception:
+            logger.exception("EMAIL ERROR")
                 
     return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
 
