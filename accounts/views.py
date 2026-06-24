@@ -76,7 +76,6 @@ def logout_user(request):
 # REQUEST PASSWORD RESET
 @api_view(['POST'])
 def password_reset_request(request):
-    print("PASSWORD RESET REQUEST")
     # Pass request data to Serializer
     serializer = PasswordResetRequestSerializer(data = request.data)
 
@@ -139,8 +138,11 @@ def password_reset_request(request):
         )
 
         email.attach_alternative(html_content, "text/html")
-        email.send()
-        
+        try:
+            email.send()
+        except Exception as e:
+            print(f"Email error: {e}")
+                
     return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
 
 

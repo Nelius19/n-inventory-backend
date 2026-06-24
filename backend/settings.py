@@ -135,22 +135,27 @@ STATICFILES_STORAGE = (
 
 # 1. Pull secret credentials safely from your Render environment variables
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "").strip()
+
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "").strip()
 
-# 2. Check if credentials exist before trying to use Gmail
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    EMAIL_HOST = "smtp.gmail.com"
+
+    EMAIL_HOST = "smtp-relay.brevo.com"
+
     EMAIL_PORT = 587
+
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-    
-    # CRITICAL: Stops Django from hanging forever if Google blocks the request
-    EMAIL_TIMEOUT = 5 
+
+    EMAIL_USE_SSL = False
+
+    DEFAULT_FROM_EMAIL = f"N-Inventory <{EMAIL_HOST_USER}>"
+
+    EMAIL_TIMEOUT = 10
+
 else:
-    # Safe Fallback: Prints emails into your Render terminal if variables aren't set
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    
 
 # ==================================================
 # FRONTEND URL
