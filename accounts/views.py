@@ -74,23 +74,113 @@ def logout_user(request):
 
 
 # REQUEST PASSWORD RESET
+# @api_view(['POST'])
+# def password_reset_request(request):
+  
+#     # Pass request data to Serializer
+#     serializer = PasswordResetRequestSerializer(data = request.data)
+
+#     # Check if data satisfy all validation constraints (serializer), return error otherwise
+#     if not serializer.is_valid():
+#         return Response(serializer.errors, status=400)
+    
+#     user = serializer.validated_data.get("user")            # Store returned user object (validated data)
+#     if user:
+#         uid = urlsafe_base64_encode(force_bytes(user.pk))   # User Id requesting password reset
+#         token = default_token_generator.make_token(user)    # Token creation: timestamp and hash signature (id, password, timestamp, secret key)
+        
+#         # reset_link = f"http://localhost:5173/password-reset/{uid}/{token}/"
+#         reset_link = f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
+#         subject = "Password Reset - N-Inventory"
+
+#         text_content = f"""
+#         Click here to reset your password:
+#         {reset_link}
+#         """
+
+#         html_content = f"""
+#         <!DOCTYPE html>
+#         <html>
+#         <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
+#             <div style="max-width:520px; margin:auto; background:white; padding:25px; border-radius:10px;">
+
+#             <h2 style="color:#2563eb;">Password Reset Request</h2>
+
+#             <p>You requested to reset your password for <b>N-Inventory</b>.</p>
+
+#             <p style="margin:30px 0;">
+#                 <a href="{reset_link}"
+#                 style="
+#                     background:#2563eb;
+#                     color:white;
+#                     padding:12px 22px;
+#                     text-decoration:none;
+#                     border-radius:6px;
+#                     font-weight:bold;
+#                     display:inline-block;">
+#                 Reset Password
+#                 </a>
+#             </p>
+
+#             <p style="font-size:12px; color:gray;">
+#                 If you did not request this, you can ignore this email.
+#             </p>
+
+#             </div>
+#         </body>
+#         </html>
+#         """
+
+#         email = EmailMultiAlternatives(
+#             subject=subject,
+#             body=text_content,
+#             from_email=settings.DEFAULT_FROM_EMAIL,
+#             to=[user.email],
+#         )
+
+#         email.attach_alternative(html_content, "text/html")
+
+#         import logging
+
+#         logger = logging.getLogger(__name__)
+
+#         logger.warning("PASSWORD RESET ENDPOINT HIT")
+#         logger.warning(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+#         logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
+#         logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
+#         logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+        
+#         try:
+#             result = email.send()
+#             logger.warning(f"EMAIL SEND RESULT: {result}")
+#         except Exception as e:
+#             return Response(
+#                 {
+#                     "error": str(e),
+#                     "type": e.__class__.__name__,
+#                 },
+#                 status=500,
+#             )
+                
+#     return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
+
+
 @api_view(['POST'])
 def password_reset_request(request):
-  
-    # Pass request data to Serializer
-    serializer = PasswordResetRequestSerializer(data = request.data)
 
-    # Check if data satisfy all validation constraints (serializer), return error otherwise
+    serializer = PasswordResetRequestSerializer(data=request.data)
+
     if not serializer.is_valid():
         return Response(serializer.errors, status=400)
-    
-    user = serializer.validated_data.get("user")            # Store returned user object (validated data)
+
+    user = serializer.validated_data.get("user")
+
     if user:
-        uid = urlsafe_base64_encode(force_bytes(user.pk))   # User Id requesting password reset
-        token = default_token_generator.make_token(user)    # Token creation: timestamp and hash signature (id, password, timestamp, secret key)
-        
-        # reset_link = f"http://localhost:5173/password-reset/{uid}/{token}/"
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
         reset_link = f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
+
         subject = "Password Reset - N-Inventory"
 
         text_content = f"""
@@ -104,27 +194,27 @@ def password_reset_request(request):
         <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
             <div style="max-width:520px; margin:auto; background:white; padding:25px; border-radius:10px;">
 
-            <h2 style="color:#2563eb;">Password Reset Request</h2>
+                <h2 style="color:#2563eb;">Password Reset Request</h2>
 
-            <p>You requested to reset your password for <b>N-Inventory</b>.</p>
+                <p>You requested to reset your password for <b>N-Inventory</b>.</p>
 
-            <p style="margin:30px 0;">
-                <a href="{reset_link}"
-                style="
-                    background:#2563eb;
-                    color:white;
-                    padding:12px 22px;
-                    text-decoration:none;
-                    border-radius:6px;
-                    font-weight:bold;
-                    display:inline-block;">
-                Reset Password
-                </a>
-            </p>
+                <p style="margin:30px 0;">
+                    <a href="{reset_link}"
+                    style="
+                        background:#2563eb;
+                        color:white;
+                        padding:12px 22px;
+                        text-decoration:none;
+                        border-radius:6px;
+                        font-weight:bold;
+                        display:inline-block;">
+                    Reset Password
+                    </a>
+                </p>
 
-            <p style="font-size:12px; color:gray;">
-                If you did not request this, you can ignore this email.
-            </p>
+                <p style="font-size:12px; color:gray;">
+                    If you did not request this, you can ignore this email.
+                </p>
 
             </div>
         </body>
@@ -149,20 +239,34 @@ def password_reset_request(request):
         logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
         logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
         logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-        
+        logger.warning(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
+
         try:
-            result = email.send()
+            result = email.send(fail_silently=False)
+
             logger.warning(f"EMAIL SEND RESULT: {result}")
+
+            return Response({
+                "success": True,
+                "result": result,
+            })
+
         except Exception as e:
+            logger.exception("EMAIL SEND FAILED")
+
             return Response(
                 {
+                    "success": False,
                     "error": str(e),
                     "type": e.__class__.__name__,
                 },
                 status=500,
             )
-                
-    return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
+
+    return Response(
+        {"message": "If the email exists, a reset link has been sent"},
+        status=200,
+    )
 
 
 # RESET USER PASSWORD
