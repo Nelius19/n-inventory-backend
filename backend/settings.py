@@ -10,47 +10,107 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
-
-# for sending email
 import os
-from dotenv import load_dotenv
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+import dj_database_url
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# for sending email
+# Load local .env file (development only)
 load_dotenv(BASE_DIR / ".env")
+
+
+# ==================================================
+# SECURITY
+# ==================================================
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
+
+
+# ==================================================
+# DATABASE
+# ==================================================
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
+}
+
+
+# ==================================================
+# CORS
+# ==================================================
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "https://n-inventory.web.app",
+# ]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:5173",
+#     "https://n-inventory.web.app",
+# ]
+
+
+# ==================================================
+# STATIC FILES
+# ==================================================
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
+
+
+# ==================================================
+# EMAIL
+# ==================================================
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-FRONTEND_URL = "https://n-inventory.web.app/"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# ==================================================
+# FRONTEND URL
+# ==================================================
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gjf=jcvrz3n8ca+(u$^d%61557!&3d=z*m6ac^@z=3cn&*vt*d'
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+)
+# # Quick-start development settings - unsuitable for production
+# # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-gjf=jcvrz3n8ca+(u$^d%61557!&3d=z*m6ac^@z=3cn&*vt*d'
 
-ALLOWED_HOSTS = [
-    "localhost",
-    ".onrender.com"
-]
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = False
 
+# ALLOWED_HOSTS = [".railway.app", "localhost"]
 
-# Application definition
+# # Application definition
 
 INSTALLED_APPS = [
     'daphne',
@@ -111,11 +171,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # added for notification (channels)
 ASGI_APPLICATION = 'backend.asgi.application'
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379")]
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL")],
+        },
+    },
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -127,14 +200,11 @@ CHANNEL_LAYERS = {
 #     }
 # }
 
-import os
-import dj_database_url
-
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL")
-    )
-}
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=os.getenv("DATABASE_URL")
+#     )
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -170,8 +240,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -189,9 +258,16 @@ REST_FRAMEWORK = {
 
 CSRF_TRUSTED_ORIGINS = [
     "https://n-inventory.web.app",
+    "http://localhost:5173"
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://n-inventory.web.app",  # Vue dev server
+    "http://localhost:5173"
 ]
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "None"
