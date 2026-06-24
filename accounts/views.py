@@ -153,8 +153,14 @@ def password_reset_request(request):
         try:
             result = email.send()
             logger.warning(f"EMAIL SEND RESULT: {result}")
-        except Exception:
-            logger.exception("EMAIL ERROR")
+        except Exception as e:
+            return Response(
+                {
+                    "error": str(e),
+                    "type": e.__class__.__name__,
+                },
+                status=500,
+            )
                 
     return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
 
