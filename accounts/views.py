@@ -220,6 +220,11 @@ def password_reset_request(request):
         """
 
         try:
+            print("========== BREVO DEBUG ==========")
+            print("BREVO_API_KEY EXISTS:", bool(settings.BREVO_API_KEY))
+            print("USER EMAIL:", user.email)
+            print("FRONTEND_URL:", settings.FRONTEND_URL)
+
             response = requests.post(
                 "https://api.brevo.com/v3/smtp/email",
                 headers={
@@ -230,7 +235,7 @@ def password_reset_request(request):
                 json={
                     "sender": {
                         "name": "N-Inventory",
-                        "email": "cmulbahpl@gmail.com",
+                        "email": "cmulbahpl@gmail.com",  # verified Brevo sender
                     },
                     "to": [
                         {
@@ -243,11 +248,27 @@ def password_reset_request(request):
                 timeout=15,
             )
 
+            print("BREVO STATUS:", response.status_code)
+            print("BREVO RESPONSE:", response.text)
+
             response.raise_for_status()
 
-        except Exception as e:
             return Response(
                 {
+                    "success": True,
+                    "message": "Password reset email sent",
+                    "brevo_status": response.status_code,
+                },
+                status=200,
+            )
+
+        except Exception as e:
+            print("========== BREVO ERROR ==========")
+            print(str(e))
+
+            return Response(
+                {
+                    "success": False,
                     "error": str(e),
                     "type": e.__class__.__name__,
                 },
@@ -255,7 +276,9 @@ def password_reset_request(request):
             )
 
     return Response(
-        {"message": "If the email exists, a reset link has been sent"},
+        {
+            "message": "If the email exists, a reset link has been sent"
+        },
         status=200,
     )
 
