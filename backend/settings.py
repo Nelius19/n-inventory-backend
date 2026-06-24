@@ -134,28 +134,30 @@ STATICFILES_STORAGE = (
 # ==================================================
 
 # 1. Pull secret credentials safely from your Render environment variables
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "").strip()
+# EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "").strip()
 
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "").strip()
+# EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "").strip()
 
-if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+# if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+#     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-    EMAIL_HOST = "smtp-relay.brevo.com"
+#     EMAIL_HOST = "smtp-relay.brevo.com"
 
-    EMAIL_PORT = 587
+#     EMAIL_PORT = 587
 
-    EMAIL_USE_TLS = True
+#     EMAIL_USE_TLS = True
 
-    EMAIL_USE_SSL = False
+#     EMAIL_USE_SSL = False
 
-    DEFAULT_FROM_EMAIL = f"N-Inventory <cmulbahpl@gmail.com>"
+#     DEFAULT_FROM_EMAIL = f"N-Inventory <cmulbahpl@gmail.com>"
 
-    EMAIL_TIMEOUT = 10
+#     EMAIL_TIMEOUT = 10
 
-else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# else:
+#     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
 
 # ==================================================
 # FRONTEND URL

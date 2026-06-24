@@ -13,6 +13,7 @@ from django.contrib.auth import update_session_auth_hash
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.core.mail import EmailMultiAlternatives
+import requests
 
 User = get_user_model() # Using custom auth User model
 
@@ -179,14 +180,11 @@ def password_reset_request(request):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
 
-        reset_link = f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
+        reset_link = (
+            f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
+        )
 
         subject = "Password Reset - N-Inventory"
-
-        text_content = f"""
-        Click here to reset your password:
-        {reset_link}
-        """
 
         html_content = f"""
         <!DOCTYPE html>
@@ -221,42 +219,35 @@ def password_reset_request(request):
         </html>
         """
 
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[user.email],
-        )
-
-        email.attach_alternative(html_content, "text/html")
-
-        import logging
-
-        logger = logging.getLogger(__name__)
-
-        logger.warning("PASSWORD RESET ENDPOINT HIT")
-        logger.warning(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-        logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-        logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-        logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-        logger.warning(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
-
         try:
-            result = email.send(fail_silently=False)
+            response = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                headers={
+                    "accept": "application/json",
+                    "api-key": settings.BREVO_API_KEY,
+                    "content-type": "application/json",
+                },
+                json={
+                    "sender": {
+                        "name": "N-Inventory",
+                        "email": "cmulbahpl@gmail.com",
+                    },
+                    "to": [
+                        {
+                            "email": user.email,
+                        }
+                    ],
+                    "subject": subject,
+                    "htmlContent": html_content,
+                },
+                timeout=15,
+            )
 
-            logger.warning(f"EMAIL SEND RESULT: {result}")
-
-            return Response({
-                "success": True,
-                "result": result,
-            })
+            response.raise_for_status()
 
         except Exception as e:
-            logger.exception("EMAIL SEND FAILED")
-
             return Response(
                 {
-                    "success": False,
                     "error": str(e),
                     "type": e.__class__.__name__,
                 },
