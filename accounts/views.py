@@ -35,14 +35,14 @@ def register_user(request):
         userData = UserSerializer(user).data    
         houseData = HouseSerializer(house).data
         return Response({"user": userData, "house": houseData}, status=200)
-    return Response(serializer.errors, status=401)
+    return Response(serializer.errors, status=400)
 
 
 # LOGIN EXISTING USER
 @api_view(['POST'])
 def login_user(request):
-    serializer = LoginSerializer(data = request.data)   # Passed request data to Serializer
-
+    serializer = LoginSerializer(data=request.data, context={'request': request})   # Passed request data to Serializer
+  
     serializer.is_valid(raise_exception=True) # Check if data satisfy all validation constraints (serializer), return error if not
     user = serializer.validated_data["user"]
     login(request, user)

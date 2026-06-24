@@ -14,13 +14,14 @@ import os
 from pathlib import Path
 
 import dj_database_url
-from dotenv import load_dotenv
+
+# 1. Import the dotenv function
+from dotenv import load_dotenv, find_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load local .env file (development only)
-load_dotenv(BASE_DIR / ".env")
-
+# 2. Automatically find and load the .env file
+load_dotenv(find_dotenv())
 
 # ==================================================
 # SECURITY
@@ -28,27 +29,79 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "localhost,127.0.0.1"
-).split(",")
-
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # ==================================================
 # DATABASE
 # ==================================================
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=not DEBUG,
-    )
-}
+# 3. Fetch the environment variable dynamically
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+if DATABASE_URL:
+    # Handles BOTH Render Internal and Render External URLs automatically
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            # Render requires SSL for external links, but allows it internally
+            ssl_require=True 
+        )
+    }
+else:
+    # Fallback to local development database if DATABASE_URL is missing
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
+## Read the environment variable cleanly
+REDIS_ENV = os.getenv("REDIS_URL", "").strip()
+
+# Strictly enforce a boolean flag so Django packages cannot fall back to defaults
+USE_REDIS = bool(REDIS_ENV and not REDIS_ENV.startswith("#"))
+
+if USE_REDIS:
+    # Production Settings (Render)
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_ENV],
+            },
+        },
+    }
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_ENV,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
+    }
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+else:
+    # ✅ Local Development: 100% Isolated from Redis
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake-inventory",
+        }
+    }
+    # Forces session storage into your Postgres cloud DB instead of local memory tracking
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+    
 # ==================================================
 # CORS
 # ==================================================
@@ -170,23 +223,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # added for notification (channels)
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379")]
-#         },
-#     },
-# }
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379")],
-        },
-    },
-}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -255,8 +291,8 @@ REST_FRAMEWORK = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
     "https://n-inventory.web.app",
-    "http://localhost:5173"
 ]
 
 CORS_ALLOWED_ORIGINS = [
