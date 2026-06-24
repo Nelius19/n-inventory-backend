@@ -76,6 +76,8 @@ def logout_user(request):
 # REQUEST PASSWORD RESET
 @api_view(['POST'])
 def password_reset_request(request):
+    print("PASSWORD RESET ENDPOINT HIT")
+
     # Pass request data to Serializer
     serializer = PasswordResetRequestSerializer(data = request.data)
 
@@ -139,6 +141,10 @@ def password_reset_request(request):
 
         email.attach_alternative(html_content, "text/html")
         try:
+            print("EMAIL_BACKEND:", settings.EMAIL_BACKEND)
+            print("EMAIL_HOST:", settings.EMAIL_HOST)
+            print("EMAIL_PORT:", settings.EMAIL_PORT)
+            print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
             email.send()
         except Exception as e:
             print(f"Email error: {e}")
