@@ -10,7 +10,10 @@ from .services import unique_code
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def getMemberShip(request):
-    
+    print("USER:", request.user)
+    print("AUTH:", request.user.is_authenticated)
+    print("COOKIES:", request.COOKIES)
+
     memberships = HouseMember.objects.filter(
         user=request.user
     ).select_related("house")                                   # foreign key relation
