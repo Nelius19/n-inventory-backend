@@ -43,6 +43,7 @@ def register_user(request):
 # LOGIN EXISTING USER
 @api_view(['POST'])
 def login_user(request):
+    print("TESTING....")
     serializer = LoginSerializer(data=request.data, context={'request': request})   # Passed request data to Serializer
   
     serializer.is_valid(raise_exception=True) # Check if data satisfy all validation constraints (serializer), return error if not
