@@ -49,8 +49,8 @@ def login_user(request):
     user = serializer.validated_data["user"]
     login(request, user)
 
-    request.session.modified = True
-    request.session.save()
+    # request.session.modified = True
+    # request.session.save()
 
     return Response(UserSerializer(user).data, status=200)
                             
@@ -64,7 +64,7 @@ def login_user(request):
 
 # VERIFY AUTHENTICATION OF 'USER SESSION ID' FROM BROWSER COOKIE (authentication done in background)
 @api_view(['GET'])
-@authentication_classes([])  
+# @authentication_classes([])  
 @permission_classes([AllowAny])  # Ensure anyone can access the initial check
 def user_session(request):
     if request.user.is_authenticated:
