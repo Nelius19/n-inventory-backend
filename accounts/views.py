@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.core.mail import EmailMultiAlternatives
 import requests
+from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model() # Using custom auth User model
 
@@ -68,6 +69,7 @@ def user_session(request):
 
 
 # LOGOUT USER
+@csrf_exempt
 @api_view(['POST'])
 def logout_user(request):
     logout(request) # Clears authenticated user session
@@ -220,10 +222,10 @@ def password_reset_request(request):
         """
 
         try:
-            print("========== BREVO DEBUG ==========")
-            print("BREVO_API_KEY EXISTS:", bool(settings.BREVO_API_KEY))
-            print("USER EMAIL:", user.email)
-            print("FRONTEND_URL:", settings.FRONTEND_URL)
+            # print("========== BREVO DEBUG ==========")
+            # print("BREVO_API_KEY EXISTS:", bool(settings.BREVO_API_KEY))
+            # print("USER EMAIL:", user.email)
+            # print("FRONTEND_URL:", settings.FRONTEND_URL)
 
             response = requests.post(
                 "https://api.brevo.com/v3/smtp/email",
@@ -248,8 +250,8 @@ def password_reset_request(request):
                 timeout=15,
             )
 
-            print("BREVO STATUS:", response.status_code)
-            print("BREVO RESPONSE:", response.text)
+            # print("BREVO STATUS:", response.status_code)
+            # print("BREVO RESPONSE:", response.text)
 
             response.raise_for_status()
 
@@ -263,8 +265,8 @@ def password_reset_request(request):
             )
 
         except Exception as e:
-            print("========== BREVO ERROR ==========")
-            print(str(e))
+            # print("========== BREVO ERROR ==========")
+            # print(str(e))
 
             return Response(
                 {

@@ -157,7 +157,7 @@ STATICFILES_STORAGE = (
 # else:
 #     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "").strip()
 
 # ==================================================
 # FRONTEND URL
@@ -315,11 +315,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173"
 ]
 
-SESSION_COOKIE_SECURE = True
+# Ensure cookies are configured for cross-site transmission
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
-
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
