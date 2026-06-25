@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -61,6 +61,7 @@ def login_user(request):
 
 # VERIFY AUTHENTICATION OF 'USER SESSION ID' FROM BROWSER COOKIE (authentication done in background)
 @api_view(['GET'])
+@authentication_classes([])  
 @permission_classes([AllowAny])  # Ensure anyone can access the initial check
 def user_session(request):
     if request.user.is_authenticated:
