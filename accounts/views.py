@@ -49,6 +49,9 @@ def login_user(request):
     user = serializer.validated_data["user"]
     login(request, user)
 
+    request.session.modified = True
+    request.session.save()
+
     return Response(UserSerializer(user).data, status=200)
                             
     # user = serializer.validated_data["user"]            # Store returned user object (validated data)
