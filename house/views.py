@@ -1,5 +1,6 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from .serializers import HouseMemberSerializer
 from .models import House, HouseMember
 from .services import unique_code
@@ -7,15 +8,15 @@ from .services import unique_code
 
 #
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def getMemberShip(request):
-    if request.user.is_authenticated:
-        memberships = HouseMember.objects.filter(
-            user=request.user
-        ).select_related("house")                                   # foreign key relation
+    
+    memberships = HouseMember.objects.filter(
+        user=request.user
+    ).select_related("house")                                   # foreign key relation
 
-        serializer = HouseMemberSerializer(memberships, many=True)
-        return Response(serializer.data, status=200)
-    return Response({"user": None}, status=401)
+    serializer = HouseMemberSerializer(memberships, many=True)
+    return Response(serializer.data, status=200)
 
 
 # get members of a selected house owned by current user
