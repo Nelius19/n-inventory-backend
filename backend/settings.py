@@ -60,47 +60,47 @@ else:
     }
 
 
-## Read the environment variable cleanly
-REDIS_ENV = os.getenv("REDIS_URL", "").strip()
+# ## Read the environment variable cleanly
+# REDIS_ENV = os.getenv("REDIS_URL", "").strip()
 
-# Strictly enforce a boolean flag so Django packages cannot fall back to defaults
-USE_REDIS = bool(REDIS_ENV and not REDIS_ENV.startswith("#"))
+# # Strictly enforce a boolean flag so Django packages cannot fall back to defaults
+# USE_REDIS = bool(REDIS_ENV and not REDIS_ENV.startswith("#"))
 
-if USE_REDIS:
-    # Production Settings (Render)
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
-            "CONFIG": {
-                "hosts": [REDIS_ENV],
-            },
-        },
-    }
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": REDIS_ENV,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
-        }
-    }
-    SESSION_ENGINE = "django.contrib.sessions.backends.db"
-else:
-    # ✅ Local Development: 100% Isolated from Redis
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer",
-        },
-    }
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-snowflake-inventory",
-        }
-    }
-    # Forces session storage into your Postgres cloud DB instead of local memory tracking
-    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# if USE_REDIS:
+#     # Production Settings (Render)
+#     CHANNEL_LAYERS = {
+#         "default": {
+#             "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+#             "CONFIG": {
+#                 "hosts": [REDIS_ENV],
+#             },
+#         },
+#     }
+#     CACHES = {
+#         "default": {
+#             "BACKEND": "django_redis.cache.RedisCache",
+#             "LOCATION": REDIS_ENV,
+#             "OPTIONS": {
+#                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#             }
+#         }
+#     }
+#     SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# else:
+#     # ✅ Local Development: 100% Isolated from Redis
+#     CHANNEL_LAYERS = {
+#         "default": {
+#             "BACKEND": "channels.layers.InMemoryChannelLayer",
+#         },
+#     }
+#     CACHES = {
+#         "default": {
+#             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#             "LOCATION": "unique-snowflake-inventory",
+#         }
+#     }
+#     # Forces session storage into your Postgres cloud DB instead of local memory tracking
+#     SESSION_ENGINE = "django.contrib.sessions.backends.db"
     
 # ==================================================
 # CORS
@@ -299,4 +299,3 @@ CORS_EXPOSE_HEADERS = [
 ]
 
 USE_X_FORWARDED_HOST = True
-USE_X_FORWARDED_PORT = True
