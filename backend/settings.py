@@ -318,10 +318,10 @@ AUTHENTICATION_BACKENDS = [
 
 CSRF_COOKIE_HTTPONLY = False
 
-# settings.py
-
 CORS_EXPOSE_HEADERS = [
     'Content-Type',
     'X-CSRFToken',
 ]
 
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
