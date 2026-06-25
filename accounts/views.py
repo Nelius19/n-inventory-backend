@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -11,10 +11,10 @@ from house.services import create_house_for
 from house.serializers import HouseSerializer
 from django.contrib.auth import update_session_auth_hash
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
 from django.core.mail import EmailMultiAlternatives
 import requests
-from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.permissions import AllowAny
 
 User = get_user_model() # Using custom auth User model
 
@@ -61,16 +61,16 @@ def login_user(request):
 
 # VERIFY AUTHENTICATION OF 'USER SESSION ID' FROM BROWSER COOKIE (authentication done in background)
 @api_view(['GET'])
+@permission_classes([AllowAny])  # Ensure anyone can access the initial check
 def user_session(request):
     if request.user.is_authenticated:
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=200)
-    return Response({"user": None}, status=401)
+    return Response({"user": None, "isAuthenticated": False}, status=200)
 
 
 # LOGOUT USER
-@csrf_exempt
-@api_view(['POST'])
+@api_view(['GET'])
 def logout_user(request):
     logout(request) # Clears authenticated user session
     return Response({"success:", True})

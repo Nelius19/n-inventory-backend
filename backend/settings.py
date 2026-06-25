@@ -106,16 +106,15 @@ else:
 # CORS
 # ==================================================
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "https://n-inventory.web.app",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://n-inventory.web.app",
+]
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:5173",
-#     "https://n-inventory.web.app",
-# ]
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://n-inventory.web.app",
+]
 
 # ==================================================
 # STATIC FILES
@@ -304,16 +303,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
-
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "https://n-inventory.web.app",
-]
-
-CORS_ALLOWED_ORIGINS = [
-    "https://n-inventory.web.app",  # Vue dev server
-    "http://localhost:5173"
-]
 
 # Ensure cookies are configured for cross-site transmission
 CSRF_COOKIE_SAMESITE = 'None'
