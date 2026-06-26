@@ -49,9 +49,6 @@ def login_user(request):
     user = serializer.validated_data["user"]
     login(request, user)
 
-    # request.session.modified = True
-    # request.session.save()
-
     return Response(UserSerializer(user).data, status=200)
                             
     # user = serializer.validated_data["user"]            # Store returned user object (validated data)
@@ -74,10 +71,23 @@ def user_session(request):
 
 
 # LOGOUT USER
-@api_view(['GET'])
+# @api_view(['POST'])
+# def logout_user(request):
+#     print(request.user)
+#     logout(request) # Clears authenticated user session
+#     return Response({"success": True}, status=200)
+
+
+@api_view(["POST"])
 def logout_user(request):
-    logout(request) # Clears authenticated user session
-    return Response({"success:", True})
+    print("===== LOGOUT =====")
+    print("Cookies:", request.COOKIES)
+    print("X-CSRFToken:", request.headers.get("X-CSRFToken"))
+    print("Origin:", request.headers.get("Origin"))
+    print("Authenticated:", request.user.is_authenticated)
+
+    logout(request)
+    return Response({"success": True})
 
 
 # REQUEST PASSWORD RESET

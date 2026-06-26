@@ -280,8 +280,9 @@ REST_FRAMEWORK = {
 }
 
 # Ensure cookies are configured for cross-site transmission
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
@@ -291,11 +292,11 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-CSRF_COOKIE_HTTPONLY = False
-
 CORS_EXPOSE_HEADERS = [
     'Content-Type',
     'X-CSRFToken',
 ]
+
+CSRF_COOKIE_HTTPONLY = False
 
 USE_X_FORWARDED_HOST = True
