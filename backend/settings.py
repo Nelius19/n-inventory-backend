@@ -106,14 +106,22 @@ else:
 # CORS
 # ==================================================
 
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "https://n-inventory.web.app",
+# ]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:5173",
+#     "https://n-inventory.web.app",
+# ]
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "https://n-inventory.web.app",
+    "https://n-inventory-production.up.railway.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "https://n-inventory.web.app",
+    "https://n-inventory-production.up.railway.app",
 ]
 
 # ==================================================
@@ -300,3 +308,6 @@ CORS_EXPOSE_HEADERS = [
 CSRF_COOKIE_HTTPONLY = False
 
 USE_X_FORWARDED_HOST = True
+
+
+
