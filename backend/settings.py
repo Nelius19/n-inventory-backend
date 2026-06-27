@@ -116,14 +116,6 @@ else:
 #     "https://n-inventory.web.app",
 # ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://n-inventory-production.up.railway.app",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://n-inventory-production.up.railway.app",
-]
-
 # ==================================================
 # STATIC FILES
 # ==================================================
@@ -287,13 +279,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Ensure cookies are configured for cross-site transmission
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 AUTHENTICATION_BACKENDS = [
@@ -305,9 +290,23 @@ CORS_EXPOSE_HEADERS = [
     'X-CSRFToken',
 ]
 
-CSRF_COOKIE_HTTPONLY = False
-
 USE_X_FORWARDED_HOST = True
 
+# Change from 'Lax' to 'None' to allow cross-subdomain cookie transmission
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
+# Keep these True as you already have them (Required when SameSite is 'None')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Allows client-side Axios/JavaScript to read the CSRF cookie header
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
+
+# Explicitly ensure Django trusts requests coming from its own domain as well
+CORS_ALLOWED_ORIGINS = [
+    "https://n-inventory-production.up.railway.app",
+    "http://localhost:5173",
+]
 
