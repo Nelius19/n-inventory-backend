@@ -302,21 +302,17 @@ CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = True
 
 # Explicitly ensure Django trusts requests coming from its own domain as well
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+)
+
 CORS_ALLOWED_ORIGINS = [
-    "https://n-inventory.up.railway.app",
-    "http://localhost:5173",
+    FRONTEND_URL,
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-# 1. Read Railway environment variable string
-raw_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
-
-if raw_origins:
-    # If the environment variable exists on Railway, split it into a list
-    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in raw_origins.split(",") if origin]
-else:
-    # FALLBACK: If Railway dashboard is empty, default to your hardcoded app domain
-    CSRF_TRUSTED_ORIGINS = [
-        "https://n-inventory.up.railway.app",
-    ]
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
+]
