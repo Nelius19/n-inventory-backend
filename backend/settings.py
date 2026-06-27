@@ -307,20 +307,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://n-inventory.up.railway.app",
-]
-
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken", # Required
-    "x-requested-with",
-]
+# 1. Read Railway environment variable string
+raw_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+
+if raw_origins:
+    # If the environment variable exists on Railway, split it into a list
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in raw_origins.split(",") if origin]
+else:
+    # FALLBACK: If Railway dashboard is empty, default to your hardcoded app domain
+    CSRF_TRUSTED_ORIGINS = [
+        "https://n-inventory.up.railway.app",
+    ]
