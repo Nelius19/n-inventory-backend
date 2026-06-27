@@ -303,12 +303,12 @@ SESSION_COOKIE_HTTPONLY = True
 
 # Explicitly ensure Django trusts requests coming from its own domain as well
 CORS_ALLOWED_ORIGINS = [
-    "https://n-inventory-production.up.railway.app",
+    "https://n-inventory.up.railway.app",
     "http://localhost:5173",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://n-inventory-production.up.railway.app",
+    "https://n-inventory.up.railway.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
