@@ -190,6 +190,9 @@ CORS_EXPOSE_HEADERS = [
 # ENVIRONMENT BASED CONFIGURATION
 # ==================================================
 
+CSRF_COOKIE_DOMAIN = ".n-inventory.com"
+SESSION_COOKIE_DOMAIN = ".n-inventory.com"
+
 if IS_PRODUCTION:
     ALLOWED_HOSTS = [
         "api.n-inventory.com",
