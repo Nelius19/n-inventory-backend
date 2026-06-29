@@ -12,6 +12,8 @@ from house.serializers import HouseSerializer
 from django.contrib.auth import update_session_auth_hash
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import EmailMultiAlternatives
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
 import requests
 
 from rest_framework.permissions import AllowAny
@@ -19,6 +21,14 @@ from rest_framework.permissions import AllowAny
 User = get_user_model() # Using custom auth User model
 
 # Create your views here.
+
+#
+@api_view(["GET"])
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
+def get_csrf(request):
+    return JsonResponse({"detail": "CSRF cookie set"})
+
 
 # CREATE NEW USER
 @api_view(['POST'])

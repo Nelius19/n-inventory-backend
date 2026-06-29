@@ -3,6 +3,7 @@ from . import views
 
 # 
 urlpatterns = [
+    path('csrf/', views.get_csrf),
     path('register/', views.register_user),
     path('login/', views.login_user),
     path('me/', views.user_session),
