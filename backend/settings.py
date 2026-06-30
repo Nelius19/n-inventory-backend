@@ -195,11 +195,12 @@ if IS_PRODUCTION:
 
     ALLOWED_HOSTS = [
         "api.n-inventory.com",
+        "n-inventory.com", 
         ".up.railway.app",
     ]
 
-    CSRF_COOKIE_DOMAIN = ".n-inventory.com"
-    SESSION_COOKIE_DOMAIN = ".n-inventory.com"
+    # CSRF_COOKIE_DOMAIN = ".n-inventory.com"
+    # SESSION_COOKIE_DOMAIN = ".n-inventory.com"
 
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
@@ -214,10 +215,17 @@ if IS_PRODUCTION:
     CORS_ALLOWED_ORIGINS = [
         "https://n-inventory.com",
         "https://www.n-inventory.com",
+        "http://localhost",          # Android Standard
+        "https://localhost",         # Android Secure (Capacitor Secure Context)
+        "capacitor://localhost",     # iOS Standard
     ]
+
     CSRF_TRUSTED_ORIGINS = [
         "https://n-inventory.com",
         "https://www.n-inventory.com",
+        "http://localhost",          # Android Capacitor Client
+        "https://localhost",
+        "capacitor://localhost",     # iOS Capacitor Client
     ]
 
 else:
@@ -235,8 +243,8 @@ else:
     USE_X_FORWARDED_HOST = False
 
     # Cookies Development Settings
-    CSRF_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = None
+    SESSION_COOKIE_SAMESITE = None
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
 
@@ -244,11 +252,14 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "http://127.0.0.1:5173",
         "http://localhost:5173",
-        
+        "http://localhost",          # Android Capacitor local testing
+        "capacitor://localhost",     # iOS Capacitor local testing
     ]
+
     CSRF_TRUSTED_ORIGINS = [
         "http://127.0.0.1:5173",
         "http://localhost:5173",
-        
+        "http://localhost",          # Android Capacitor local testing
+        "capacitor://localhost",     # iOS Capacitor local testing
     ]
     
