@@ -190,14 +190,16 @@ CORS_EXPOSE_HEADERS = [
 # ENVIRONMENT BASED CONFIGURATION
 # ==================================================
 
-CSRF_COOKIE_DOMAIN = ".n-inventory.com"
-SESSION_COOKIE_DOMAIN = ".n-inventory.com"
-
 if IS_PRODUCTION:
+    FRONTEND_URL = "https://n-inventory.com"
+
     ALLOWED_HOSTS = [
         "api.n-inventory.com",
         ".up.railway.app",
     ]
+
+    CSRF_COOKIE_DOMAIN = ".n-inventory.com"
+    SESSION_COOKIE_DOMAIN = ".n-inventory.com"
 
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
@@ -219,10 +221,16 @@ if IS_PRODUCTION:
     ]
 
 else:
+    FRONTEND_URL = "http://localhost:5173"
+
     ALLOWED_HOSTS = [
         "localhost",
         "127.0.0.1",
     ]
+
+    # Remove cookie domains for localhost
+    CSRF_COOKIE_DOMAIN = None
+    SESSION_COOKIE_DOMAIN = None
 
     USE_X_FORWARDED_HOST = False
 
@@ -234,11 +242,13 @@ else:
 
     # Origins
     CORS_ALLOWED_ORIGINS = [
-        "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        
     ]
     CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        
     ]
     

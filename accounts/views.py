@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.mail import EmailMultiAlternatives
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
+from rest_framework import status
 import requests
 
 from rest_framework.permissions import AllowAny
@@ -56,22 +57,14 @@ def login_user(request):
     serializer = LoginSerializer(data=request.data, context={'request': request})   # Passed request data to Serializer
   
     serializer.is_valid(raise_exception=True) # Check if data satisfy all validation constraints (serializer), return error if not
-    user = serializer.validated_data["user"]
-    login(request, user)
+    user = serializer.validated_data["user"]                # Store returned user object (validated data)
+    login(request, user)                                    # Set sessionId, cookie
 
-    return Response(UserSerializer(user).data, status=200)
+    return Response(UserSerializer(user).data, status=200)  # Converts User object to Json format using serializer
                             
-    # user = serializer.validated_data["user"]            # Store returned user object (validated data)
-    # if user:  
-    #     login(request, user)                            # Set sessionId, cookie
-    #     return Response(UserSerializer(user).data, status=200) # Converts User object to Json format using serializer
-    
-    # return Response ({"error": "Wrong username or password"}, status=401)
-
 
 # VERIFY AUTHENTICATION OF 'USER SESSION ID' FROM BROWSER COOKIE (authentication done in background)
 @api_view(['GET'])
-# @authentication_classes([])  
 @permission_classes([AllowAny])  # Ensure anyone can access the initial check
 def user_session(request):
     if request.user.is_authenticated:
@@ -81,117 +74,14 @@ def user_session(request):
 
 
 # LOGOUT USER
-# @api_view(['POST'])
-# def logout_user(request):
-#     print(request.user)
-#     logout(request) # Clears authenticated user session
-#     return Response({"success": True}, status=200)
-
-
-@api_view(["POST"])
+@api_view(['POST']) # Must be POST!
+@permission_classes([IsAuthenticated])
 def logout_user(request):
-    print("===== LOGOUT =====")
-    print("Cookies:", request.COOKIES)
-    print("X-CSRFToken:", request.headers.get("X-CSRFToken"))
-    print("Origin:", request.headers.get("Origin"))
-    print("Authenticated:", request.user.is_authenticated)
-
-    logout(request)
-    return Response({"success": True})
+    logout(request) # This flushes the sessionid cookie cleanly
+    return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
 
-# REQUEST PASSWORD RESET
-# @api_view(['POST'])
-# def password_reset_request(request):
-  
-#     # Pass request data to Serializer
-#     serializer = PasswordResetRequestSerializer(data = request.data)
-
-#     # Check if data satisfy all validation constraints (serializer), return error otherwise
-#     if not serializer.is_valid():
-#         return Response(serializer.errors, status=400)
-    
-#     user = serializer.validated_data.get("user")            # Store returned user object (validated data)
-#     if user:
-#         uid = urlsafe_base64_encode(force_bytes(user.pk))   # User Id requesting password reset
-#         token = default_token_generator.make_token(user)    # Token creation: timestamp and hash signature (id, password, timestamp, secret key)
-        
-#         # reset_link = f"http://localhost:5173/password-reset/{uid}/{token}/"
-#         reset_link = f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
-#         subject = "Password Reset - N-Inventory"
-
-#         text_content = f"""
-#         Click here to reset your password:
-#         {reset_link}
-#         """
-
-#         html_content = f"""
-#         <!DOCTYPE html>
-#         <html>
-#         <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
-#             <div style="max-width:520px; margin:auto; background:white; padding:25px; border-radius:10px;">
-
-#             <h2 style="color:#2563eb;">Password Reset Request</h2>
-
-#             <p>You requested to reset your password for <b>N-Inventory</b>.</p>
-
-#             <p style="margin:30px 0;">
-#                 <a href="{reset_link}"
-#                 style="
-#                     background:#2563eb;
-#                     color:white;
-#                     padding:12px 22px;
-#                     text-decoration:none;
-#                     border-radius:6px;
-#                     font-weight:bold;
-#                     display:inline-block;">
-#                 Reset Password
-#                 </a>
-#             </p>
-
-#             <p style="font-size:12px; color:gray;">
-#                 If you did not request this, you can ignore this email.
-#             </p>
-
-#             </div>
-#         </body>
-#         </html>
-#         """
-
-#         email = EmailMultiAlternatives(
-#             subject=subject,
-#             body=text_content,
-#             from_email=settings.DEFAULT_FROM_EMAIL,
-#             to=[user.email],
-#         )
-
-#         email.attach_alternative(html_content, "text/html")
-
-#         import logging
-
-#         logger = logging.getLogger(__name__)
-
-#         logger.warning("PASSWORD RESET ENDPOINT HIT")
-#         logger.warning(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-#         logger.warning(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-#         logger.warning(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-#         logger.warning(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-        
-#         try:
-#             result = email.send()
-#             logger.warning(f"EMAIL SEND RESULT: {result}")
-#         except Exception as e:
-#             return Response(
-#                 {
-#                     "error": str(e),
-#                     "type": e.__class__.__name__,
-#                 },
-#                 status=500,
-#             )
-                
-#     return Response({"message":"If the email exists, a reset link has been sent"}, status=200)
-
-
+# Reset password
 @api_view(['POST'])
 def password_reset_request(request):
 
@@ -201,14 +91,11 @@ def password_reset_request(request):
         return Response(serializer.errors, status=400)
 
     user = serializer.validated_data.get("user")
-
     if user:
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
 
-        reset_link = (
-            f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
-        )
+        reset_link = (f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/")
 
         subject = "Password Reset - N-Inventory"
 
@@ -246,11 +133,6 @@ def password_reset_request(request):
         """
 
         try:
-            # print("========== BREVO DEBUG ==========")
-            # print("BREVO_API_KEY EXISTS:", bool(settings.BREVO_API_KEY))
-            # print("USER EMAIL:", user.email)
-            # print("FRONTEND_URL:", settings.FRONTEND_URL)
-
             response = requests.post(
                 "https://api.brevo.com/v3/smtp/email",
                 headers={
@@ -263,20 +145,12 @@ def password_reset_request(request):
                         "name": "N-Inventory",
                         "email": "cmulbahpl@gmail.com",  # verified Brevo sender
                     },
-                    "to": [
-                        {
-                            "email": user.email,
-                        }
-                    ],
+                    "to": [{"email": user.email,}],
                     "subject": subject,
                     "htmlContent": html_content,
                 },
                 timeout=15,
             )
-
-            # print("BREVO STATUS:", response.status_code)
-            # print("BREVO RESPONSE:", response.text)
-
             response.raise_for_status()
 
             return Response(
@@ -289,9 +163,6 @@ def password_reset_request(request):
             )
 
         except Exception as e:
-            # print("========== BREVO ERROR ==========")
-            # print(str(e))
-
             return Response(
                 {
                     "success": False,
@@ -301,12 +172,7 @@ def password_reset_request(request):
                 status=500,
             )
 
-    return Response(
-        {
-            "message": "If the email exists, a reset link has been sent"
-        },
-        status=200,
-    )
+    return Response({"message": "If the email exists, a reset link has been sent" }, status=200)
 
 
 # RESET USER PASSWORD
@@ -340,7 +206,6 @@ def update_user(request):
     username = request.data.get('username')
     email = request.data.get('email')
     current_password = request.data.get('current_password')
-    # new_password = request.data.get('new_password')
 
     # Verify and authenticate user data
     if not user.check_password(current_password):
@@ -360,15 +225,6 @@ def update_user(request):
         user.email = email
 
     user.save()
-
-    # if new_password:
-    #     user.set_password(new_password)
-
-    # user.save()
-
-    # if new_password:
-    #     update_session_auth_hash(request, user)
-    #     return Response({"password_success": "Password updated successfully"})
     
     return Response({"message": "Updated successfully"})
 

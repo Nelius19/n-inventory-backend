@@ -6,14 +6,10 @@ from .models import House, HouseMember
 from .services import unique_code
 
 
-#
+# get house members including house owner
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def getMemberShip(request):
-    print("USER:", request.user)
-    print("AUTH:", request.user.is_authenticated)
-    print("COOKIES:", request.COOKIES)
-
     memberships = HouseMember.objects.filter(
         user=request.user
     ).select_related("house")                                   # foreign key relation
@@ -36,7 +32,7 @@ def house_members(request, house_id):
     return Response(serializer.data, status=200)
 
 
-#
+# Remove house member by house owner
 @api_view(['DELETE'])
 def remove_member(request, house_id, member_id):
     is_owner = HouseMember.objects.filter(
@@ -56,7 +52,7 @@ def remove_member(request, house_id, member_id):
     return Response({"deleted": True}, status=200)
 
 
-# 
+# auth user create multiple houses
 @api_view(["POST"])
 def create_house(request):
     code = unique_code()
@@ -75,7 +71,7 @@ def create_house(request):
     return Response({"success": True}, status=200)
 
 
-#
+# edit house name
 @api_view(["PUT"])
 def edit_house(request):
     user = request.user
@@ -95,7 +91,7 @@ def edit_house(request):
     return Response({"message": "House name changed successfully"})
 
 
-#
+# permently delete a house
 @api_view(['DELETE'])
 def delete_house(request, house_id):
     house = House.objects.get(owner=request.user, id=house_id)
@@ -130,7 +126,7 @@ def join_house (request):
     return Response({"message": "Joined successfully"}, status=201)
 
 
-# 
+# member leave a house
 @api_view(['DELETE'])
 def leave_house(request, house_id):
 
@@ -138,4 +134,4 @@ def leave_house(request, house_id):
 
     house_member.delete()
 
-    return Response({"helloo"})
+    return Response({"success": "Left house"}, status=200)
